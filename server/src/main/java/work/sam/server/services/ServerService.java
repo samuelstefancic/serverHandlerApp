@@ -7,6 +7,7 @@ import work.sam.server.repository.ServerRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -18,8 +19,13 @@ public class ServerService {
         return serverRepository.findByIpAdress(ipAdress);
     }
 
+//Récupérer tout les serveurs
 
+    public String getAllServers() {
+        return getAll().toString();
+    }
 
+//Récupérer un serveur
     public Server getServerById(Long id) {
         Optional<Server> server = serverRepository.findById(id);
         if (server.isPresent()) {
@@ -28,6 +34,13 @@ public class ServerService {
             throw new ServerException("Server non trouvé " + id);
         }
     }
+
+    //read
+
+    public List<Server> getAll() {
+        return serverRepository.findAll();
+    }
+
 
     //Créer un serveur
     public Server createServer(Server server) {
@@ -40,10 +53,14 @@ public class ServerService {
 
     //Supprimer un serveur
 
-/*    public Server deleteServer(Server server) {
+     public boolean deleteServerById(Long id) {
+         Optional<Server> server = serverRepository.findById(id);
         //Check si IP existante
-        if (serverRepository.findById(server.getIpAdress()) != null) {
-
+        if (server.isPresent()) {
+            serverRepository.deleteById(id);
+            return true;
+        } else {
+            return false;
         }
-    }*/
+    }
 }
