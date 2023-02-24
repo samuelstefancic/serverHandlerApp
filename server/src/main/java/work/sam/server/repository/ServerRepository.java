@@ -12,4 +12,6 @@ public interface ServerRepository extends JpaRepository<Server, Long> {
     @Override
     Optional<Server> findById(Long id);
 
+
+
 }
