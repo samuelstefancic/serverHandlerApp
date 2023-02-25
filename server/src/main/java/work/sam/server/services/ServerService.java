@@ -1,4 +1,7 @@
 package work.sam.server.services;
+import jakarta.transaction.Transactional;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
 import work.sam.server.exception.ServerException;
 import work.sam.server.model.Server;
 import work.sam.server.repository.ServerRepository;
@@ -11,8 +14,10 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
+@Transactional
 public class ServerService {
 
+    @Autowired
     private ServerRepository serverRepository;
 
     public Server findServerByIpAdress(String ipAdress) {
@@ -32,6 +37,14 @@ public class ServerService {
             return server.get();
         } else {
             throw new ServerException("Server non trouvé " + id);
+        }
+    }
+
+    public Server getServerByName(String name) {
+        if (serverRepository.findByName(name) == null) {
+            throw new ServerException("Name not found");
+        } else {
+            return serverRepository.findByName(name);
         }
     }
 
