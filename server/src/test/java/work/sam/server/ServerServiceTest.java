@@ -26,15 +26,37 @@ public class ServerServiceTest {
     @BeforeAll
     void create() {
         Server item = new Server();
-        item.setIpAdress("192.168.0.0");
-        item.setName("Aws_Server");
+        item.setIpAdress("192.168.1.0");
+        item.setName("DOCKER_Server");
         item.setStatus(Status.SERVER_UP);
         serverService.createServer(item);
     }
 
     @Test
     void testCreation() {
-        assertNotNull(serverService.getServerByName("Aws_Server"));
+        assertNotNull(serverService.getServerByName("DOCKER_Server"));
     }
+
+    @Test
+    void testUpdateServer() {
+        // Créer un serveur
+        Server server = new Server();
+        server.setIpAdress("192.168.0.1");
+        server.setName("Server 1");
+        server.setStatus(Status.SERVER_UP);
+        Server savedServer = serverService.createServer(server);
+
+        // Mettre à jour le serveur
+        savedServer.setName("Server 2");
+        Server updatedServer = serverService.updateServer(savedServer.getId(), savedServer);
+
+        // Vérifier que le serveur a bien été mis à jour
+        assertNotNull(updatedServer);
+        assertEquals(savedServer.getId(), updatedServer.getId());
+        assertEquals("Server 2", updatedServer.getName());
+        assertEquals("192.168.0.1", updatedServer.getIpAdress());
+        assertEquals(Status.SERVER_UP, updatedServer.getStatus());
+    }
+
 
 }
