@@ -1,4 +1,5 @@
 package work.sam.server.services;
+import jakarta.servlet.Servlet;
 import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -6,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import work.sam.server.enumeration.Status;
 import work.sam.server.exception.ServerException;
 import work.sam.server.model.Server;
@@ -20,6 +22,7 @@ import java.net.UnknownHostException;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
+import java.util.Random;
 
 import static org.springframework.data.domain.PageRequest.of;
 
@@ -161,14 +164,24 @@ public class ServerService {
     public Page<Server> getEveryServer(Pageable pageable) {
         return serverRepository.findAll(pageable);
     }
-    private String setServerImageUrl() {
-        return null;
-    }
+
 
     private void checkServerIsNotNull(Server server) {
         if (server == null) {
             throw new ServerException("Serveur null");
         }
+    }
+
+    private String setServerImageUrl() {
+        String imagesNames[] = {"serveur1.png", "serveur2.png", "serveur3.png", "serveur4.png", "serveur5.png"};
+        return ServletUriComponentsBuilder.fromCurrentContextPath().path("/server/src/images/" + imagesNames[new Random().nextInt(5)]).toUriString();
+    }
+
+    //méthode utilisant un math.random, je doute que cela soit opti sur le long terme
+    private String setServerImageUrlRandom() {
+        String imagesNames[] = {"serveur1.png", "serveur2.png", "serveur3.png", "serveur4.png", "serveur5.png"};
+        int randomIndex = (int) (Math.random() * imagesNames.length);
+        return getClass().getResource(imagesNames[randomIndex]).toString();
     }
 
 }
