@@ -6,6 +6,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import work.sam.server.enumeration.Status;
@@ -35,12 +36,6 @@ public class ServerService {
     private ServerRepository serverRepository;
 
     private static final Logger logger = LoggerFactory.getLogger(ServerService.class);
-
-
-
-
-
-
 
 //Récupération de serveurs par informations
 
@@ -83,8 +78,8 @@ public class ServerService {
 
     //Supprimer un serveur
 
-     public boolean deleteServerById(Long id) {
-         Optional<Server> server = serverRepository.findById(id);
+    public boolean deleteServerById(Long id) {
+        Optional<Server> server = serverRepository.findById(id);
         //Check si IP existante
         if (server.isPresent()) {
             serverRepository.deleteById(id);
@@ -93,7 +88,6 @@ public class ServerService {
             return false;
         }
     }
-
 
     //Update
     public Server updateServer(Long id, Server updatedServer) {
@@ -124,7 +118,6 @@ public class ServerService {
     public Server ping(String ipAdress) {
         logger.info("Ping vers ip du serveur : ", ipAdress);
         Server server = serverRepository.findByIpAdress(ipAdress);
-
         try {
             InetAddress addr = InetAddress.getByName(ipAdress);
             if (addr.isReachable(1000)) {
@@ -156,16 +149,14 @@ public class ServerService {
         return serverRepository.findAll(of(0, limit)).toList();
     }
     //Retourne tout les serveurs sans se soucier de la pagination
-    public Collection<Server>  list(int limit) {
+    public List<Server>  list(int limit) {
         logger.info("Getting every servers");
-        return serverRepository.findAll();
+        return serverRepository.findAll(PageRequest.of(0, limit)).getContent();
     }
     //Meilleure méthode pour gérer les pages, donc efficace dans cet exemple
     public Page<Server> getEveryServer(Pageable pageable) {
         return serverRepository.findAll(pageable);
     }
-
-
     private void checkServerIsNotNull(Server server) {
         if (server == null) {
             throw new ServerException("Serveur null");
