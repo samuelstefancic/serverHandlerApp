@@ -1,13 +1,12 @@
 package work.sam.server.services;
-import jakarta.servlet.Servlet;
 import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Bean;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import work.sam.server.enumeration.Status;
 import work.sam.server.exception.ServerException;
@@ -20,6 +19,8 @@ import org.springframework.stereotype.Service;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
@@ -37,6 +38,11 @@ public class ServerService {
 
     private static final Logger logger = LoggerFactory.getLogger(ServerService.class);
 
+    //save method
+    public Server save(Server server) {
+        return serverRepository.save(server);
+    }
+
 //Récupération de serveurs par informations
 
     public Server findServerByIpAdress(String ipAdress) {
@@ -48,13 +54,13 @@ public class ServerService {
         if (server.isPresent()) {
             return server.get();
         } else {
-            throw new ServerException("Server non trouvé " + id);
+            throw new ServerException("Server non trouvé " + id, HttpStatus.BAD_REQUEST);
         }
     }
 
     public Server getServerByName(String name) {
         if (serverRepository.findByName(name) == null) {
-            throw new ServerException("Name not found");
+            throw new ServerException("Name not found", HttpStatus.BAD_REQUEST);
         } else {
             return serverRepository.findByName(name);
         }
@@ -71,21 +77,21 @@ public class ServerService {
     public Server createServer(Server server) {
         //Check si l'ip est déjà utilisée
         if (serverRepository.findByIpAdress(server.getIpAdress()) != null) {
-            throw new ServerException("L'adresse IP utilisée n'est pas unique");
+            throw new ServerException("L'adresse IP utilisée n'est pas unique", HttpStatus.BAD_REQUEST);
         }
         return serverRepository.save(server);
     }
 
     //Supprimer un serveur
 
-    public boolean deleteServerById(Long id) {
+    public void deleteServerById(Long id) {
         Optional<Server> server = serverRepository.findById(id);
         //Check si IP existante
         if (server.isPresent()) {
             serverRepository.deleteById(id);
-            return true;
+            logger.info("Server with ID {} has been deleted ", id);
         } else {
-            return false;
+            throw new ServerException("This server does not exist", HttpStatus.NO_CONTENT);
         }
     }
 
@@ -102,7 +108,7 @@ public class ServerService {
             existServer.setStatus(updatedServer.getStatus());
             return serverRepository.save(existServer);
         } else {
-            throw new ServerException("Server not found with id : " + id);
+            throw new ServerException("Server not found with id : " + id, HttpStatus.BAD_REQUEST);
         }
     }
 
@@ -118,6 +124,9 @@ public class ServerService {
     public Server ping(String ipAdress) {
         logger.info("Ping vers ip du serveur : ", ipAdress);
         Server server = serverRepository.findByIpAdress(ipAdress);
+        if (server == null) {
+            throw new ServerException("Server not found with ip : " + ipAdress, HttpStatus.BAD_REQUEST);
+        }
         try {
             InetAddress addr = InetAddress.getByName(ipAdress);
             if (addr.isReachable(1000)) {
@@ -128,11 +137,20 @@ public class ServerService {
         } catch (UnknownHostException e) {
             logger.error("L'adresse IP fournie est invalide : ", ipAdress);
             server.setStatus(Status.SERVER_DOWN);
+            throw new ServerException("Adresse IP invalide " + ipAdress, HttpStatus.BAD_REQUEST);
+
         } catch (IOException e) {
             logger.error("Le serveur n'est pas joignable, ip : ", ipAdress);
             server.setStatus(Status.SERVER_DOWN);
+            throw new ServerException("Server is not responding to pings" + ipAdress, HttpStatus.SERVICE_UNAVAILABLE);
         }
+        server.setLastPing(LocalDateTime.now());
+        serverRepository.save(server);
         return server;
+    }
+
+    private LocalDateTime getLastPing(Server server) {
+        return server.getLastPing();
     }
 
     //Récupérer tout les serveurs
@@ -150,7 +168,7 @@ public class ServerService {
     }
     //Retourne tout les serveurs sans se soucier de la pagination
     public List<Server>  list(int limit) {
-        logger.info("Getting every servers");
+        logger.info("Getting " + limit + " servers");
         return serverRepository.findAll(PageRequest.of(0, limit)).getContent();
     }
     //Meilleure méthode pour gérer les pages, donc efficace dans cet exemple
@@ -159,7 +177,7 @@ public class ServerService {
     }
     private void checkServerIsNotNull(Server server) {
         if (server == null) {
-            throw new ServerException("Serveur null");
+            throw new ServerException("Serveur null", HttpStatus.BAD_REQUEST);
         }
     }
 
@@ -173,6 +191,20 @@ public class ServerService {
         String imagesNames[] = {"serveur1.png", "serveur2.png", "serveur3.png", "serveur4.png", "serveur5.png"};
         int randomIndex = (int) (Math.random() * imagesNames.length);
         return getClass().getResource(imagesNames[randomIndex]).toString();
+    }
+    public void createExampleServers() {
+        logger.info("Creating example servers...");
+
+        Server server1 = new Server("192.168.1.1", "Server 1", "16", "Test", null, Status.SERVER_UP, LocalDateTime.now());
+        serverRepository.save(server1);
+
+        Server server2 = new Server("192.168.1.2", "Server 2", "32", "Test", null, Status.SERVER_DOWN, LocalDateTime.now());
+        serverRepository.save(server2);
+
+        Server server3 = new Server("192.168.1.3", "Server 3", "64", "Prod", null, Status.SERVER_UP, LocalDateTime.now());
+        serverRepository.save(server3);
+
+        logger.info("Example servers created successfully.");
     }
 
 }

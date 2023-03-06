@@ -8,6 +8,8 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import work.sam.server.enumeration.Status;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Objects;
 
 @Entity
@@ -35,6 +37,25 @@ public class Server {
     @Column(name = "status")
     private Status status;
 
+    private LocalDateTime lastPing;
+
+    public Server(String ipAdress, String name, String memory, String type, String imageUrl, Status status, LocalDateTime lastPing) {
+        this.ipAdress = ipAdress;
+        this.name = name;
+        this.memory = memory;
+        this.type = type;
+        this.imageUrl = imageUrl;
+        this.status = status;
+        this.lastPing = lastPing;
+    }
+
+    public LocalDateTime getLastPing() {
+        return lastPing;
+    }
+
+    public void setLastPing(LocalDateTime lastPing) {
+        this.lastPing = lastPing;
+    }
 
     public Long getId() {
         return id;

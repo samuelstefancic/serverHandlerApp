@@ -3,8 +3,10 @@ package work.sam.server;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
+import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.junit4.SpringRunner;
 import work.sam.server.enumeration.Status;
 import work.sam.server.model.Server;
 import work.sam.server.services.ServerService;
@@ -41,7 +43,7 @@ public class ServerServiceTest {
     void testUpdateServer() {
         // Créer un serveur
         Server server = new Server();
-        server.setIpAdress("192.168.0.1");
+        server.setIpAdress("192.168.10.1");
         server.setName("Server 1");
         server.setStatus(Status.SERVER_UP);
         Server savedServer = serverService.createServer(server);
@@ -54,9 +56,21 @@ public class ServerServiceTest {
         assertNotNull(updatedServer);
         assertEquals(savedServer.getId(), updatedServer.getId());
         assertEquals("Server 2", updatedServer.getName());
-        assertEquals("192.168.0.1", updatedServer.getIpAdress());
+        assertEquals("192.168.10.1", updatedServer.getIpAdress());
         assertEquals(Status.SERVER_UP, updatedServer.getStatus());
     }
 
+    @Test
+    public void testPing() {
+        String ipAdress = "127.0.0.1";
+        Server server = new Server();
+        server.setName("Server 1");
+        server.setIpAdress(ipAdress);
+        serverService.create(server);
 
+        Server result = serverService.ping(ipAdress);
+
+        assertEquals(Status.SERVER_UP, result.getStatus());
+        assertNotNull(result.getLastPing());
+    }
 }
