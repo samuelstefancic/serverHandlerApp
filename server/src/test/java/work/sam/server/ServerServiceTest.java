@@ -28,16 +28,17 @@ public class ServerServiceTest {
     @BeforeAll
     void create() {
         Server item = new Server();
-        item.setIpAdress("192.168.1.0");
+        item.setIpAdress("192.1681.1.0");
         item.setName("DOCKER_Server");
         item.setStatus(Status.SERVER_UP);
-        serverService.createServer(item);
+        serverService.create(item);
     }
 
     @Test
     void testCreation() {
         assertNotNull(serverService.getServerByName("DOCKER_Server"));
     }
+
 
     @Test
     void testUpdateServer() {

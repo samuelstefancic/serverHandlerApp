@@ -40,6 +40,10 @@ public class ServerService {
 
     //save method
     public Server save(Server server) {
+        if (server.getStatus() == null) {
+            server.setStatus(Status.SERVER_DOWN);
+        }
+        server.setImageUrl(setServerImageUrl());
         return serverRepository.save(server);
     }
 
@@ -82,6 +86,16 @@ public class ServerService {
         return serverRepository.save(server);
     }
 
+    public Server create(Server server) {
+        logger.info("Sauvegarde du nouveau serveur ... {} ", server.getName());
+        if (server.getStatus() == null) {
+            server.setStatus(Status.SERVER_DOWN);
+        }
+        server.setLastPing(LocalDateTime.now());
+        server.setImageUrl(setServerImageUrl());
+        return serverRepository.save(server);
+    }
+
     //Supprimer un serveur
 
     public void deleteServerById(Long id) {
@@ -113,13 +127,6 @@ public class ServerService {
     }
 
     //Autres méthodes
-
-
-    public Server create(Server server) {
-        logger.info("Sauvegarde du nouveau serveur ... {} ", server.getName());
-        server.setImageUrl(setServerImageUrl());
-        return serverRepository.save(server);
-    }
 
     public Server ping(String ipAdress) {
         logger.info("Ping vers ip du serveur : ", ipAdress);
@@ -183,7 +190,7 @@ public class ServerService {
 
     private String setServerImageUrl() {
         String imagesNames[] = {"serveur1.png", "serveur2.png", "serveur3.png", "serveur4.png", "serveur5.png"};
-        return ServletUriComponentsBuilder.fromCurrentContextPath().path("/server/src/images/" + imagesNames[new Random().nextInt(5)]).toUriString();
+        return ServletUriComponentsBuilder.fromCurrentContextPath().path("server/src/main/resources/images/" + imagesNames[new Random().nextInt(5)]).toUriString();
     }
 
     //méthode utilisant un math.random, je doute que cela soit opti sur le long terme

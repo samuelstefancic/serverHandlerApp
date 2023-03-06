@@ -2,6 +2,7 @@ package work.sam.server.controller;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cglib.core.Local;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -12,6 +13,7 @@ import work.sam.server.model.Server;
 import work.sam.server.services.ServerService;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 
@@ -70,6 +72,7 @@ public class ServerController {
         if (server.getStatus() == null) {
             server.setStatus(Status.SERVER_DOWN);
         }
+        server.setLastPing(LocalDateTime.now());
         serverService.save(server);
         Response response = Response.builder()
                 .httpStatus(HttpStatus.CREATED)
