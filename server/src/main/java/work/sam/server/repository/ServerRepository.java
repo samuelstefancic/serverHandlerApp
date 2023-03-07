@@ -16,7 +16,6 @@ public interface ServerRepository extends JpaRepository<Server, Long> {
 
     Server findByName(String name);
 
-
-
+    Server findFirstById(Long id);
 
 }

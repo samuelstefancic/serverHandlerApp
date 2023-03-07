@@ -11,6 +11,7 @@ import work.sam.server.enumeration.Status;
 import work.sam.server.model.Server;
 import work.sam.server.services.ServerService;
 
+import java.io.IOException;
 import java.util.function.BooleanSupplier;
 import org.junit.jupiter.api.Assertions.*;
 
@@ -25,7 +26,7 @@ public class ServerServiceTest {
     @Autowired
     private ServerService serverService;
 
-    @BeforeAll
+    @Test
     void create() {
         Server item = new Server();
         item.setIpAdress("192.1681.1.0");
@@ -73,5 +74,12 @@ public class ServerServiceTest {
 
         assertEquals(Status.SERVER_UP, result.getStatus());
         assertNotNull(result.getLastPing());
+    }
+    @Test
+    public void testFetchImage() throws IOException {
+        Long serverId = 45L; // replace with ID of a server in your database
+        byte[] imageBytes = serverService.fetchImage(serverId);
+        assertNotNull(imageBytes);
+        assertTrue(imageBytes.length > 0);
     }
 }

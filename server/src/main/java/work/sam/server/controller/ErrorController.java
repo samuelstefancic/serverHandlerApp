@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 public class ErrorController implements org.springframework.boot.web.servlet.error.ErrorController {
 
    private static final Logger logger = LoggerFactory.getLogger(ErrorController.class);
-    @GetMapping("/error")
+    @GetMapping("/fezfz")
     public String errorHandler(HttpServletRequest request, Model model) {
         Object status = request.getAttribute(RequestDispatcher.ERROR_STATUS_CODE);
         Object message = request.getAttribute(RequestDispatcher.ERROR_MESSAGE);

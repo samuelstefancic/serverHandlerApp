@@ -3,6 +3,8 @@ import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cglib.core.Local;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -16,8 +18,10 @@ import work.sam.server.repository.ServerRepository;
 
 import org.springframework.stereotype.Service;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.InetAddress;
+import java.net.URL;
 import java.net.UnknownHostException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -120,6 +124,7 @@ public class ServerService {
             existServer.setMemory(updatedServer.getMemory());
             existServer.setType(updatedServer.getType());
             existServer.setStatus(updatedServer.getStatus());
+            existServer.setLastPing(LocalDateTime.now());
             return serverRepository.save(existServer);
         } else {
             throw new ServerException("Server not found with id : " + id, HttpStatus.BAD_REQUEST);
@@ -127,6 +132,13 @@ public class ServerService {
     }
 
     //Autres méthodes
+
+
+    //Fetch images
+    public byte[] fetchImage(Long id) throws IOException {
+        Server server = this.getServerById(id);
+        return new ClassPathResource(server.getImageUrl()).getContentAsByteArray();
+    }
 
     public Server ping(String ipAdress) {
         logger.info("Ping vers ip du serveur : ", ipAdress);
@@ -155,7 +167,33 @@ public class ServerService {
         serverRepository.save(server);
         return server;
     }
+    public Server pingId(Long id) {
+        logger.info("Ping vers ip du serveur : ", id);
+        Server server = serverRepository.findFirstById(id);
+        if (server == null) {
+            throw new ServerException("Server not found with ip : " + id, HttpStatus.BAD_REQUEST);
+        }
+        try {
+            InetAddress addr = InetAddress.getByName(server.getIpAdress());
+            if (addr.isReachable(1000)) {
+                server.setStatus(Status.SERVER_UP);
+            } else {
+                server.setStatus(Status.SERVER_DOWN);
+            }
+        } catch (UnknownHostException e) {
+            logger.error("L'adresse IP fournie est invalide : ", server.getIpAdress());
+            server.setStatus(Status.SERVER_DOWN);
+            throw new ServerException("Adresse IP invalide " + server.getIpAdress(), HttpStatus.BAD_REQUEST);
 
+        } catch (IOException e) {
+            logger.error("Le serveur n'est pas joignable, ip : ", server.getIpAdress());
+            server.setStatus(Status.SERVER_DOWN);
+            throw new ServerException("Server is not responding to pings" + server.getIpAdress(), HttpStatus.SERVICE_UNAVAILABLE);
+        }
+        server.setLastPing(LocalDateTime.now());
+        serverRepository.save(server);
+        return server;
+    }
     private LocalDateTime getLastPing(Server server) {
         return server.getLastPing();
     }
@@ -190,7 +228,12 @@ public class ServerService {
 
     private String setServerImageUrl() {
         String imagesNames[] = {"serveur1.png", "serveur2.png", "serveur3.png", "serveur4.png", "serveur5.png"};
-        return ServletUriComponentsBuilder.fromCurrentContextPath().path("server/src/main/resources/images/" + imagesNames[new Random().nextInt(5)]).toUriString();
+        try {
+            return ServletUriComponentsBuilder.fromCurrentContextPath().path("server/src/main/resources/images/" + imagesNames[new Random().nextInt(5)]).toUriString();
+        } catch (Exception e) {
+            logger.info("Image not load" + e);
+            return "Image could not be loaded";
+        }
     }
 
     //méthode utilisant un math.random, je doute que cela soit opti sur le long terme
