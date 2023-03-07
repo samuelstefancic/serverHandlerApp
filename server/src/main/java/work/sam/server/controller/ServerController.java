@@ -17,10 +17,16 @@ import work.sam.server.model.Server;
 import work.sam.server.services.ServerService;
 
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.NoSuchFileException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
+
+import static org.springframework.http.MediaType.IMAGE_PNG_VALUE;
 
 @RestController
 @RequestMapping("/server")
@@ -124,11 +130,10 @@ public class ServerController {
             server.setStatus(Status.SERVER_DOWN);
         }
         server.setLastPing(LocalDateTime.now());
-        serverService.save(server);
         Response response = Response.builder()
                 .httpStatus(HttpStatus.CREATED)
                 .message("Server creation is a success")
-                .data(Map.of("server", server))
+                .data(Map.of("server", serverService.create(server)))
                 .build();
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
@@ -151,14 +156,16 @@ public class ServerController {
         return ResponseEntity.ok().body(response);
     }
 
-    @GetMapping("/image/{id}")
-    public ResponseEntity<byte[]> getServerImage(@PathVariable Long id) {
+    @GetMapping(path = "/image/{fileName}", produces = IMAGE_PNG_VALUE)
+    public byte[] getServerImage(@PathVariable("fileName") String fileName) throws IOException {
         try {
-            byte[] imageBytes = serverService.fetchImage(id);
-            return ResponseEntity.ok().contentType(MediaType.IMAGE_PNG).body(imageBytes);
+            return Files.readAllBytes(Paths.get(System.getProperty("user.home") + "/Downloads/images/" + fileName));
+        } catch (NoSuchFileException e) {
+            logger.error("Could not find image", e);
+            throw e;
         } catch (IOException e) {
-            logger.error("Could not fetch image", e);
-            return ResponseEntity.notFound().build();
+            logger.error("Could not read image", e);
+            throw e;
         }
     }
 }

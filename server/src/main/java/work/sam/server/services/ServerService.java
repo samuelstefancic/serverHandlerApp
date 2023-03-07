@@ -229,7 +229,7 @@ public class ServerService {
     private String setServerImageUrl() {
         String imagesNames[] = {"serveur1.png", "serveur2.png", "serveur3.png", "serveur4.png", "serveur5.png"};
         try {
-            return ServletUriComponentsBuilder.fromCurrentContextPath().path("server/src/main/resources/images/" + imagesNames[new Random().nextInt(5)]).toUriString();
+            return ServletUriComponentsBuilder.fromCurrentContextPath().path("/server/image/" + imagesNames[new Random().nextInt(5)]).toUriString();
         } catch (Exception e) {
             logger.info("Image not load" + e);
             return "Image could not be loaded";
