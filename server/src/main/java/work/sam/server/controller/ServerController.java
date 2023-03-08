@@ -16,7 +16,10 @@ import work.sam.server.model.Response;
 import work.sam.server.model.Server;
 import work.sam.server.services.ServerService;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
@@ -157,15 +160,23 @@ public class ServerController {
     }
 
     @GetMapping(path = "/image/{fileName}", produces = IMAGE_PNG_VALUE)
-    public byte[] getServerImage(@PathVariable("fileName") String fileName) throws IOException {
+    public ResponseEntity<byte[]> getServerImage(@PathVariable("fileName") String fileName) throws IOException {
         try {
-            return Files.readAllBytes(Paths.get(System.getProperty("user.home") + "/Downloads/images/" + fileName));
+            URL url = getClass().getResource("/images/" + fileName);
+            if (url == null) {
+                throw new FileNotFoundException("Image not found");
+            }
+            Path path = Paths.get(url.toURI());
+            byte[] imageBytes = Files.readAllBytes(path);
+            return ResponseEntity.ok().contentType(MediaType.IMAGE_PNG).body(imageBytes);
         } catch (NoSuchFileException e) {
             logger.error("Could not find image", e);
             throw e;
         } catch (IOException e) {
             logger.error("Could not read image", e);
             throw e;
+        } catch (URISyntaxException e) {
+            throw new RuntimeException(e);
         }
     }
 }
