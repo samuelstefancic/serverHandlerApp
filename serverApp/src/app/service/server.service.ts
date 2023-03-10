@@ -13,7 +13,7 @@ export class ServerService {
 
   constructor(
     private http: HttpClient,
-    @Inject('serverIp') private serverIp: string
+    @Inject('serverIp') private serverIp: 'localhost'
   ) {
     this.apiUrl = `http://${this.serverIp}:8080`;
   }
