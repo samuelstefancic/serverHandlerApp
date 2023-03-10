@@ -58,6 +58,21 @@ public class ServerController {
         );
     }
 
+    @GetMapping("/ping/{ipAdress}")
+    public ResponseEntity<Response> ping(@PathVariable("ipAdress") String ipAdress) {
+        Server server = serverService.ping(ipAdress);
+        HttpStatus status = server != null ? HttpStatus.OK : HttpStatus.NO_CONTENT;
+        String message = server != null ? "ping ok" : "ping fail";
+        return ResponseEntity.ok(
+            Response.builder()
+                    .time(LocalDate.now())
+                    .data(Map.of("server", server))
+                    .message(message)
+                    .httpStatus(status)
+                    .statusCode(status.value())
+                    .build()
+        );
+    }
     //Read objet précis
     @GetMapping("/list/{ipAdress}")
     public ResponseEntity<Response> pingServer(@PathVariable("ipAdress") String ipAdress) {
