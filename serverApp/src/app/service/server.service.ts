@@ -2,7 +2,6 @@ import { Response } from './../response/response';
 import { Inject, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { catchError, Observable, tap, throwError } from 'rxjs';
-import { Response } from '../response/response';
 import { Server } from '../model/Server';
 
 @Injectable({
