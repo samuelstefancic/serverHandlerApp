@@ -1,7 +1,8 @@
+import { Status } from './../enumeration/status.enum';
 import { Response } from './../response/response';
 import { Inject, Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { catchError, Observable, tap, throwError } from 'rxjs';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+import { catchError, Observable, Subscriber, tap, throwError } from 'rxjs';
 import { Server } from '../model/Server';
 
 @Injectable({
@@ -90,6 +91,47 @@ export class ServerService {
       );
   }
 
+  //Filtrer
+
+  /*filter$ = (status: Status, response: Response) => <Observable<Response>>
+  new Observable<Response>(
+    Subscriber => {
+      console.log(response);
+      Subscriber.next(
+        status === Status.ALL ? {...response, message: `server filtered by ${status} status`}
+      )
+    }
+  )*/
+
+  filterServer(status: Status, response: Response): Observable<Response> {
+    return new Observable<Response>((subscriber) => {
+      if (status === Status.ALL) {
+        subscriber.next({
+          ...response,
+          message: `Servers filtered by ${status} status`,
+        });
+      } else {
+        const filteredServer = response.data.servers?.filter(
+          (server) => server.status === status
+        );
+        if (!filteredServer || filteredServer.length === 0) {
+          const errorMessage = `No servers found with status '${status}'`;
+          subscriber.error(new Error(errorMessage));
+        } else {
+          subscriber.next({
+            ...response,
+            data: { servers: filteredServer },
+            message: `Servers filtered by ${status} status`,
+          });
+        }
+      }
+    }).pipe(
+      catchError((error: HttpErrorResponse) =>
+        this.handleError(`Error while filtering servers`, error)
+      )
+    );
+  }
+
   //Sans méthode catchError, plus lourd
   getServerListNonUsed(): Observable<Response> {
     const url = `${this.apiUrl}/server/list`;
@@ -162,8 +204,15 @@ export class ServerService {
     );
   }
 
-  private handleError(errorMessage: string, error: any): Observable<never> {
-    console.error(errorMessage, error);
-    return throwError(() => new Error(error));
+  private handleError(
+    errorMessage: string,
+    errorHttp: HttpErrorResponse
+  ): Observable<never> {
+    console.error(errorMessage, errorHttp);
+    const err =
+      errorHttp.error instanceof ErrorEvent
+        ? errorHttp.error.message
+        : `Error Code: ${errorHttp.status}\nMessage: ${errorHttp.message}`;
+    return throwError(() => new Error(err));
   }
 }
