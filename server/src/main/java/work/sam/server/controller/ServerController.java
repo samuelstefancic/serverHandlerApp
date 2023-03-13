@@ -76,9 +76,8 @@ public class ServerController {
     //Read objet précis
     @GetMapping("/list/{ipAdress}")
     public ResponseEntity<Response> pingServer(@PathVariable("ipAdress") String ipAdress) {
-
-        Server server = serverService.ping(ipAdress);
-        List<Server> servers = serverService.list(10);
+        Server server = serverService.getServerByIp(ipAdress);
+        server.setLastPing(LocalDateTime.now());
         HttpStatus status = HttpStatus.OK;
         if (server == null) {
             status = HttpStatus.NO_CONTENT;

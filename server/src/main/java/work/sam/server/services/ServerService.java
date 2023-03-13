@@ -74,6 +74,14 @@ public class ServerService {
         }
     }
 
+    public Server getServerByIp(String ipAdress) {
+        if (serverRepository.findByIpAdress(ipAdress) == null) {
+            throw new ServerException("Server not found with ip adress", HttpStatus.NOT_FOUND);
+        } else {
+            return serverRepository.findByIpAdress(ipAdress);
+        }
+    }
+
     //read
 
     public List<Server> getAll() {
