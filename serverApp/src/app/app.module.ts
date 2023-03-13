@@ -3,25 +3,24 @@ import { BrowserModule } from '@angular/platform-browser';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
-import {HttpClientModule} from "@angular/common/http";
-import { HeaderComponent } from './components/header/header.component';
-import { FooterComponent } from './components/footer/footer.component';
-import { BodyComponent } from './components/body/body.component';
+import { HttpClientModule } from '@angular/common/http';
+import { SingleServerComponent } from './admin/containers/single-server/single-server.component';
+import { AllServersComponent } from './admin/containers/all-servers/all-servers.component';
+import { FooterComponent } from './admin/components/footer/footer.component';
+import { HeaderComponent } from './admin/components/header/header.component';
+import { ServerBaseComponent } from './admin/containers/server-base/server-base.component';
 
 @NgModule({
   declarations: [
     AppComponent,
-    HeaderComponent,
+    SingleServerComponent,
+    AllServersComponent,
     FooterComponent,
-    BodyComponent
+    HeaderComponent,
+    ServerBaseComponent,
   ],
-  imports: [
-    BrowserModule,
-    AppRoutingModule,
-    HttpClientModule,
-
-  ],
+  imports: [BrowserModule, AppRoutingModule, HttpClientModule],
   providers: [],
-  bootstrap: [AppComponent]
+  bootstrap: [AppComponent],
 })
-export class AppModule { }
+export class AppModule {}
