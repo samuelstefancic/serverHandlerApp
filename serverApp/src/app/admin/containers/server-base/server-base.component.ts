@@ -1,3 +1,4 @@
+import { Server } from './../../../model/Server';
 import { ServerService } from './../../../service/server.service';
 import { Status } from './../../../enumeration/status.enum';
 import { DataState } from './../../../enumeration/dataState';
@@ -59,5 +60,42 @@ export class ServerBaseComponent {
         return of({ dataState: DataState.ERROR, error });
       })
     );
+  }
+
+  public deleteServer(serverId: number): void {
+    this.serverService
+      .deleteServer(serverId)
+      .pipe(
+        map((response: Response) => {
+          const filteredServers = this.dataSubject.value?.data.servers?.filter(
+            (server) => server.id !== serverId
+          );
+          return {
+            dataState: DataState.LOADED,
+            appData: {
+              time: new Date(),
+              statusCode: response.statusCode,
+              httpStatus: response.httpStatus,
+              reason: response.reason,
+              message: response.message,
+              devMessage: response.devMessage,
+              data: { servers: filteredServers?.reverse() },
+            },
+          };
+        }),
+        catchError((error: string) => {
+          return of({
+            dataState: DataState.ERROR,
+            error: error,
+          });
+        })
+      )
+      .subscribe((appState: AppState<Response>) => {
+        this.stateApp$ = of(appState);
+      });
+  }
+
+  public saveServer(server: Server): void {
+    this.serverService.saveServer(server).pipe(map((response: Response) => {}));
   }
 }

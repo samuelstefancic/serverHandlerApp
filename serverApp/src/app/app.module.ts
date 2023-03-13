@@ -20,7 +20,12 @@ import { ServerBaseComponent } from './admin/containers/server-base/server-base.
     ServerBaseComponent,
   ],
   imports: [BrowserModule, AppRoutingModule, HttpClientModule],
-  providers: [],
+  providers: [
+    {
+      provide: 'serverIp',
+      useValue: 'localhost',
+    },
+  ],
   bootstrap: [AppComponent],
 })
 export class AppModule {}
