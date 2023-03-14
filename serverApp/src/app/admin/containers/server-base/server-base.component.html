@@ -1,1 +1,6 @@
 <div>{{ stateApp$ | async | json }}</div>
+<app-popup *ngIf="isPopupOpen"></app-popup>
+
+<button (click)="openPopup()">Ouvrir le pop-up</button>
+<app-popup *ngIf="popUpVisible" (close)="closePopup()"></app-popup>
+<app-popup *ngIf="isPopupOpen" (close)="closePopup()"></app-popup>

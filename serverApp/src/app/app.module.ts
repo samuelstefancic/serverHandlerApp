@@ -9,6 +9,7 @@ import { AllServersComponent } from './admin/containers/all-servers/all-servers.
 import { FooterComponent } from './admin/components/footer/footer.component';
 import { HeaderComponent } from './admin/components/header/header.component';
 import { ServerBaseComponent } from './admin/containers/server-base/server-base.component';
+import { PopupComponent } from './admin/components/popup/popup.component';
 
 @NgModule({
   declarations: [
@@ -18,6 +19,7 @@ import { ServerBaseComponent } from './admin/containers/server-base/server-base.
     FooterComponent,
     HeaderComponent,
     ServerBaseComponent,
+    PopupComponent,
   ],
   imports: [BrowserModule, AppRoutingModule, HttpClientModule],
   providers: [

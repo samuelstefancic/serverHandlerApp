@@ -28,6 +28,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 import static org.springframework.http.MediaType.IMAGE_PNG_VALUE;
 
@@ -41,7 +42,8 @@ public class ServerController {
 
     //read as whole, list of 20
     @GetMapping("/list")
-    public ResponseEntity<Response> getServer() {
+    public ResponseEntity<Response> getServer() throws InterruptedException {
+        TimeUnit.SECONDS.sleep(3);
         HttpStatus status = HttpStatus.OK;
         List<Server> servers = serverService.list(20);
         if (servers.isEmpty()) {

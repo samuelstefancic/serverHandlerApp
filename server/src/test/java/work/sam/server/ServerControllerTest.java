@@ -21,7 +21,7 @@ public class ServerControllerTest {
     private ServerController controller;
 
     @Test
-    public void testGetServer() {
+    public void testGetServer() throws InterruptedException {
         ResponseEntity<Response> response = controller.getServer();
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertNotNull(response.getBody());
