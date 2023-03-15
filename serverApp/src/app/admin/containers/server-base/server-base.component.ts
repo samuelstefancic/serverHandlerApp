@@ -13,9 +13,12 @@ import {
   map,
   tap,
   merge,
+  switchMap,
+  throwError,
 } from 'rxjs';
 import { PopupComponent } from '../../components/popup/popup.component';
-import { Component } from '@angular/core';
+import { Component, Injector } from '@angular/core';
+import { HeaderComponent } from '../../components/header/header.component';
 
 @Component({
   selector: 'app-server-base',
@@ -35,9 +38,22 @@ export class ServerBaseComponent {
   private _isPopupOpen: boolean = false;
   private _popUpVisible: boolean = false;
 
-  constructor(private serverService: ServerService) {}
+  public serverList: Server[] = [];
+  public headerComponent = HeaderComponent;
+
+  constructor(
+    private serverService: ServerService,
+    private injector: Injector
+  ) {}
 
   ngOnInit(): void {
+    this.serverService.getServerList().subscribe((response: any) => {
+      this.serverList = response.data.servers;
+      this.serverService.setServerList(this.serverList);
+    });
+    this.serverService.serverList$.subscribe((servers: Server[]) => {
+      this.serverList = servers;
+    });
     this.stateApp$ = this.serverService.getServerList().pipe(
       map((response) => {
         this.dataSubject.next(response);
@@ -66,6 +82,24 @@ export class ServerBaseComponent {
       })
     );
   }
+
+  //Actual methods who are working
+
+  addNewServer(newServer: Partial<Server>) {
+    const addedServ: Server = {
+      id: 0,
+      ipAdress: newServer.ipAdress || '',
+      name: newServer.name || '',
+      memory: newServer.memory || '',
+      type: newServer.type || '',
+      imageUrl: '',
+      status: newServer.status || Status.SERVER_UP,
+      hidden: newServer.hidden || false,
+    };
+    this.serverService.saveServer(addedServ);
+  }
+
+  //Mainly to practice, i went through hell to be honest
 
   public deleteServer(serverId: number): void {
     this.serverService
@@ -100,6 +134,27 @@ export class ServerBaseComponent {
       });
   }
 
+  //Filter
+  public filterServer(status: Status): void {
+    switch (status) {
+      case Status.ALL:
+        this.serverList.forEach((server) => {
+          server.hidden = false;
+        });
+        break;
+      case Status.SERVER_UP:
+        this.serverList.forEach((server) => {
+          server.hidden = server.status !== Status.SERVER_UP;
+        });
+        break;
+      case Status.SERVER_DOWN:
+        this.serverList.forEach((server) => {
+          server.hidden = server.status !== Status.SERVER_DOWN;
+        });
+        break;
+    }
+  }
+  //Save
   public saveServer(server: Server): void {
     const saveServer$ = this.serverService.saveServer(server);
     const updateData$ = saveServer$.pipe(
@@ -179,10 +234,16 @@ export class ServerBaseComponent {
   openPopup() {
     this.isPopupOpen = true;
     this.popUpVisible = true;
+    this._isPopupOpen = true;
   }
 
   closePopup() {
     this.isPopupOpen = false;
     this.popUpVisible = false;
+    this._isPopupOpen = false;
+  }
+
+  onBackgroundClick() {
+    this.closePopup();
   }
 }

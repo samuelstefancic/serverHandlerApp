@@ -1,4 +1,4 @@
-import {Status} from "../enumeration/status.enum";
+import { Status } from '../enumeration/status.enum';
 
 export interface Server {
   id: number;
@@ -8,4 +8,5 @@ export interface Server {
   type: string;
   imageUrl: string;
   status: Status;
+  hidden: boolean;
 }

@@ -1,5 +1,31 @@
 <div class="popup">
-  <h1>Pop-up example h1</h1>
-  <p>Pop-up example p</p>
-  <button (click)="onBackgroundClick()">Fermer</button>
+  <h1>Add a new server</h1>
+  <form *ngIf="form" [formGroup]="form">
+    <label>
+      IP Address:
+      <input formControlName="ipAdress" type="text" />
+    </label>
+    <label>
+      Name:
+      <input formControlName="name" type="text" />
+    </label>
+    <label>
+      Memory:
+      <input formControlName="memory" type="text" />
+    </label>
+    <label>
+      Type:
+      <input formControlName="type" type="text" />
+    </label>
+    <label>
+      Status:
+      <select formControlName="status">
+        <option *ngFor="let status of Status | keyvalue" [value]="status.key">
+          {{ status.value }}
+        </option>
+      </select>
+    </label>
+    <button (click)="addServer()">Submit</button>
+  </form>
+  <button (click)="closePopup()">Close</button>
 </div>

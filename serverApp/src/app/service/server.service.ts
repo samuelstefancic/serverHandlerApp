@@ -2,7 +2,14 @@ import { Status } from './../enumeration/status.enum';
 import { Response } from './../response/response';
 import { Inject, Injectable } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
-import { catchError, Observable, Subscriber, tap, throwError } from 'rxjs';
+import {
+  BehaviorSubject,
+  catchError,
+  Observable,
+  Subscriber,
+  tap,
+  throwError,
+} from 'rxjs';
 import { Server } from '../model/Server';
 
 @Injectable({
@@ -10,6 +17,8 @@ import { Server } from '../model/Server';
 })
 export class ServerService {
   private readonly apiUrl: string;
+  private serverListSubject = new BehaviorSubject<Server[]>([]);
+  public serverList$ = this.serverListSubject.asObservable();
 
   constructor(
     private http: HttpClient,
@@ -18,7 +27,20 @@ export class ServerService {
     this.apiUrl = `http://${this.serverIp}:8080`;
   }
 
-  //Avec méthode handleError, plus léger
+  setServerList(servers: Server[]): void {
+    this.serverListSubject.next(servers);
+  }
+
+  filterServerList(status: Status): void {
+    const currentList = this.serverListSubject.value;
+
+    const filteredList = currentList.map((server) => {
+      server.hidden = status !== Status.ALL && server.status !== status;
+      return server;
+    });
+
+    this.serverListSubject.next(filteredList);
+  }
 
   //Ping
   ping(ipAdress: string): Observable<Response> {
@@ -50,6 +72,7 @@ export class ServerService {
   }
 
   //saveServer
+
   //post
 
   saveServer(server: Server): Observable<Response> {
@@ -61,6 +84,25 @@ export class ServerService {
           this.handleError('Error saving the server', error)
         )
       );
+  }
+
+  //Post avec application server
+
+  addNewServer(newServer: Server) {
+    this.saveServer(newServer).subscribe(
+      (response: any) => {
+        if (response.success) {
+          const updatedServerList = [
+            ...this.serverListSubject.value,
+            newServer,
+          ];
+          this.serverListSubject.next(updatedServerList);
+        }
+      },
+      (error) => {
+        console.error('Error while adding the server', error);
+      }
+    );
   }
 
   //updateServer

@@ -6,4 +6,25 @@
 </head>
 <header>
   <h1>Application de gestion de serveur</h1>
+  <p>Filter from :</p>
+  <p>Ajouter un serveur</p>
+  <span>
+    Récupérer liste serveurs
+    <select [(ngModel)]="selectedStatus" (ngModelChange)="filterServer()">
+      <option [value]="Status.ALL">All servers</option>
+      <option [value]="Status.SERVER_UP">Servers up</option>
+      <option [value]="Status.SERVER_DOWN">Servers down</option>
+    </select>
+  </span>
+  <p>En savoir plus - Documentation et ajout d'éléments</p>
 </header>
+<div>
+  <tbody>
+    <td *ngFor="let server of serverListGet" [hidden]="server.hidden">
+      {{ server.id }} - {{ server.ipAdress }} - {{ server.name }} -
+      {{ server.status }} {{ server.memory }} {{ server.type }}
+      {{ server.imageUrl }}
+    </td>
+  </tbody>
+  <h2>FIN DU HEADER</h2>
+</div>

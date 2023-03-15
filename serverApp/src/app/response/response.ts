@@ -1,4 +1,5 @@
-import {Server} from "../model/Server";
+import { DataState } from '../enumeration/dataState';
+import { Server } from '../model/Server';
 
 export interface Response {
   time: Date;
@@ -7,5 +8,5 @@ export interface Response {
   reason: string;
   message: string;
   devMessage: string;
-  data: { servers?: Server[], server?: Server };
+  data: { servers?: Server[]; server?: Server };
 }

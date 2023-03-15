@@ -1,3 +1,4 @@
+import { FormsModule } from '@angular/forms';
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 
@@ -10,6 +11,7 @@ import { FooterComponent } from './admin/components/footer/footer.component';
 import { HeaderComponent } from './admin/components/header/header.component';
 import { ServerBaseComponent } from './admin/containers/server-base/server-base.component';
 import { PopupComponent } from './admin/components/popup/popup.component';
+import { ReactiveFormsModule } from '@angular/forms';
 
 @NgModule({
   declarations: [
@@ -21,7 +23,13 @@ import { PopupComponent } from './admin/components/popup/popup.component';
     ServerBaseComponent,
     PopupComponent,
   ],
-  imports: [BrowserModule, AppRoutingModule, HttpClientModule],
+  imports: [
+    BrowserModule,
+    AppRoutingModule,
+    HttpClientModule,
+    FormsModule,
+    ReactiveFormsModule,
+  ],
   providers: [
     {
       provide: 'serverIp',

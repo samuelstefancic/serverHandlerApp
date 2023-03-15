@@ -43,7 +43,6 @@ public class ServerController {
     //read as whole, list of 20
     @GetMapping("/list")
     public ResponseEntity<Response> getServer() throws InterruptedException {
-        TimeUnit.SECONDS.sleep(3);
         HttpStatus status = HttpStatus.OK;
         List<Server> servers = serverService.list(20);
         if (servers.isEmpty()) {

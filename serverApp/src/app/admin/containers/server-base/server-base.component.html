@@ -1,6 +1,15 @@
-<div>{{ stateApp$ | async | json }}</div>
-<app-popup *ngIf="isPopupOpen"></app-popup>
+<ul>
+  <li *ngFor="let server of serverList" [hidden]="server.hidden">
+    {{ server.name }} - {{ server.status }}
+  </li>
+</ul>
 
 <button (click)="openPopup()">Ouvrir le pop-up</button>
-<app-popup *ngIf="popUpVisible" (close)="closePopup()"></app-popup>
-<app-popup *ngIf="isPopupOpen" (close)="closePopup()"></app-popup>
+<app-popup
+  *ngIf="isPopupOpen"
+  (addNewServer)="addNewServer($event)"
+  (onClose)="closePopup()"
+></app-popup>
+
+<!--  <p>Le texte suivant montre l'intégralité des données envoyées par le backend</p>
+<div>{{ stateApp$ | async | json }}</div>-->
