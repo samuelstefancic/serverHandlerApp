@@ -12,6 +12,7 @@ import { HeaderComponent } from './admin/components/header/header.component';
 import { ServerBaseComponent } from './admin/containers/server-base/server-base.component';
 import { PopupComponent } from './admin/components/popup/popup.component';
 import { ReactiveFormsModule } from '@angular/forms';
+import { ServerPopupComponent } from './admin/components/server-popup/server-popup.component';
 
 @NgModule({
   declarations: [
@@ -22,6 +23,7 @@ import { ReactiveFormsModule } from '@angular/forms';
     HeaderComponent,
     ServerBaseComponent,
     PopupComponent,
+    ServerPopupComponent,
   ],
   imports: [
     BrowserModule,
@@ -30,6 +32,7 @@ import { ReactiveFormsModule } from '@angular/forms';
     FormsModule,
     ReactiveFormsModule,
   ],
+
   providers: [
     {
       provide: 'serverIp',

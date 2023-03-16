@@ -77,20 +77,23 @@ export class ServerService {
 
   saveServer(server: Server): Observable<Response> {
     const url = `${this.apiUrl}/server/save`;
-    return this.http
-      .post<Response>(url, server)
-      .pipe(
-        catchError((error) =>
-          this.handleError('Error saving the server', error)
-        )
-      );
+    return this.http.post<Response>(url, server).pipe(
+      tap((response) => {
+        const addedServer = response.data?.server;
+        if (addedServer) {
+          const currentList = this.serverListSubject.value;
+          this.serverListSubject.next([addedServer, ...currentList]);
+        }
+      }),
+      catchError((error) => this.handleError('Error saving the server', error))
+    );
   }
 
   //Post avec application server
 
-  addNewServer(newServer: Server) {
-    this.saveServer(newServer).subscribe(
-      (response: any) => {
+  addNewServer(newServer: Server): Observable<any> {
+    return this.saveServer(newServer).pipe(
+      tap((response: any) => {
         if (response.success) {
           const updatedServerList = [
             ...this.serverListSubject.value,
@@ -98,10 +101,7 @@ export class ServerService {
           ];
           this.serverListSubject.next(updatedServerList);
         }
-      },
-      (error) => {
-        console.error('Error while adding the server', error);
-      }
+      })
     );
   }
 
@@ -123,14 +123,18 @@ export class ServerService {
   //delete
 
   deleteServer(serverId: number): Observable<Response> {
-    const url = `${this.apiUrl}/server/${serverId}`;
-    return this.http
-      .delete<Response>(url)
-      .pipe(
-        catchError((error) =>
-          this.handleError('Error deleting the server', error)
-        )
-      );
+    const url = `${this.apiUrl}/server/delete/${serverId}`;
+    return this.http.delete<Response>(url).pipe(
+      tap(() => {
+        const updatedServerList = this.serverListSubject.value.filter(
+          (server) => server.id !== serverId
+        );
+        this.serverListSubject.next(updatedServerList);
+      }),
+      catchError((error) =>
+        this.handleError('Error deleting the server', error)
+      )
+    );
   }
 
   //Filtrer

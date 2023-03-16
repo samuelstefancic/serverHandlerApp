@@ -7,7 +7,18 @@
 <header>
   <h1>Application de gestion de serveur</h1>
   <p>Filter from :</p>
-  <p>Ajouter un serveur</p>
+  <button (click)="serverPopupOpen = !serverPopupOpen">
+    Ajouter un serveur
+  </button>
+  <app-server-popup
+    *ngIf="serverPopupOpen"
+    [action]="'add'"
+    [server]="createNewServer()"
+    (actionCompleted)="serverPopupOpen = false"
+    (addNewServer)="onAddNewServer($event)"
+    (updateServer)="onUpdateServer($event)"
+    (deleteServer)="onDeleteServer($event)"
+  ></app-server-popup>
   <span>
     Récupérer liste serveurs
     <select [(ngModel)]="selectedStatus" (ngModelChange)="filterServer()">
@@ -19,12 +30,15 @@
   <p>En savoir plus - Documentation et ajout d'éléments</p>
 </header>
 <div>
-  <tbody>
+  <div *ngIf="successMessage" class="success-message">
+    {{ successMessage }}
+  </div>
+  <!-- <tbody>
     <td *ngFor="let server of serverListGet" [hidden]="server.hidden">
       {{ server.id }} - {{ server.ipAdress }} - {{ server.name }} -
       {{ server.status }} {{ server.memory }} {{ server.type }}
       {{ server.imageUrl }}
     </td>
   </tbody>
-  <h2>FIN DU HEADER</h2>
+  <h2>FIN DU HEADER</h2>-->
 </div>

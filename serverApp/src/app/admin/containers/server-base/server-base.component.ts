@@ -41,6 +41,11 @@ export class ServerBaseComponent {
   public serverList: Server[] = [];
   public headerComponent = HeaderComponent;
 
+  serverListGet: Server[] = [];
+  successMessage = '';
+
+  public selectedServer: Server | null = null;
+
   constructor(
     private serverService: ServerService,
     private injector: Injector
@@ -51,36 +56,6 @@ export class ServerBaseComponent {
       this.serverList = response.data.servers;
       this.serverService.setServerList(this.serverList);
     });
-    this.serverService.serverList$.subscribe((servers: Server[]) => {
-      this.serverList = servers;
-    });
-    this.stateApp$ = this.serverService.getServerList().pipe(
-      map((response) => {
-        this.dataSubject.next(response);
-        return {
-          dataState: DataState.LOADED,
-          appData: {
-            ...response,
-            data: { servers: response.data?.servers?.reverse() || [] },
-          },
-        };
-      }),
-      startWith({
-        dataState: DataState.LOADING,
-        appData: {
-          time: new Date(),
-          statusCode: 0,
-          httpStatus: '',
-          reason: '',
-          message: '',
-          devMessage: '',
-          data: { servers: [] },
-        },
-      }),
-      catchError((error: string) => {
-        return of({ dataState: DataState.ERROR, error });
-      })
-    );
   }
 
   //Actual methods who are working
@@ -96,7 +71,12 @@ export class ServerBaseComponent {
       status: newServer.status || Status.SERVER_UP,
       hidden: newServer.hidden || false,
     };
-    this.serverService.saveServer(addedServ);
+    this.serverService.saveServer(addedServ).subscribe({
+      next: (response) => {},
+      error: (error) => {
+        console.error('Error adding the server:', error);
+      },
+    });
   }
 
   //Mainly to practice, i went through hell to be honest
@@ -206,11 +186,49 @@ export class ServerBaseComponent {
     );
   }
 
+  onUpdateServer(updatedServer: Partial<Server>) {
+    if (this.selectedServer) {
+      const updatedServerData: Server = {
+        ...this.selectedServer,
+        ...updatedServer,
+      };
+      this.serverService.updateServer(updatedServerData).subscribe({
+        next: (response) => {
+          const serverIndex = this.serverList.findIndex(
+            (server) => server.id === updatedServerData.id
+          );
+          if (serverIndex > -1) {
+            this.serverList[serverIndex] = updatedServerData;
+          }
+          this.closeUpdatePopup();
+        },
+        error: (error) => {
+          console.error('Error updating the server:', error);
+        },
+      });
+    }
+  }
+
   private handleAppState(appState: AppState<Response>): void {
     if (typeof appState.error === 'string') {
       appState.appData = null;
     }
     this.stateApp$ = of(appState);
+  }
+
+  refreshServerList() {
+    this.serverService.getServerList().subscribe((response: Response) => {
+      if (response.data && response.data.servers) {
+        this.serverListGet = response.data.servers;
+      }
+    });
+  }
+
+  showSuccessMessage(message: string) {
+    this.successMessage = message;
+    setTimeout(() => {
+      this.successMessage = '';
+    }, 3000);
   }
 
   //PopUp
@@ -245,5 +263,15 @@ export class ServerBaseComponent {
 
   onBackgroundClick() {
     this.closePopup();
+  }
+
+  public openUpdatePopup(server: Server) {
+    this.selectedServer = server;
+    this.isPopupOpen = true;
+  }
+
+  public closeUpdatePopup(): void {
+    this.selectedServer = null;
+    this.isPopupOpen = false;
   }
 }

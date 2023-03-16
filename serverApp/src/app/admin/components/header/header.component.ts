@@ -20,6 +20,8 @@ export class HeaderComponent {
   public serverBase = ServerBaseComponent;
   @Output() filterChanged = new EventEmitter<Status>();
   serverListGet: Server[] = [];
+  serverPopupOpen = false;
+  successMessage = '';
 
   constructor(private serverService: ServerService) {}
 
@@ -33,6 +35,57 @@ export class HeaderComponent {
     this.serverService.filterServerList(this.selectedStatus as Status);
   }
 
+  createNewServer(): Partial<Server> {
+    return {
+      id: 0,
+      ipAdress: '',
+      name: '',
+      memory: '',
+      type: '',
+      imageUrl: '',
+      status: Status.SERVER_UP,
+      hidden: false,
+    };
+  }
+
+  onAddNewServer(newServer: Partial<Server>) {
+    this.serverService.addNewServer(newServer as Server).subscribe(() => {
+      // Handle the successful addition of the server, e.g., refresh the list, show a message, etc.
+      this.refreshServerList();
+      this.showSuccessMessage('Server added successfully!');
+    });
+  }
+
+  onUpdateServer(updatedServer: Partial<Server>) {
+    this.serverService.updateServer(updatedServer as Server).subscribe(() => {
+      // Handle the successful update of the server, e.g., refresh the list, show a message, etc.
+      this.refreshServerList();
+      this.showSuccessMessage('Server updated successfully!');
+    });
+  }
+
+  onDeleteServer(serverId: number) {
+    this.serverService.deleteServer(serverId).subscribe(() => {
+      // Handle the successful deletion of the server, e.g., refresh the list, show a message, etc.
+      this.refreshServerList();
+      this.showSuccessMessage('Server deleted successfully!');
+    });
+  }
+
+  refreshServerList() {
+    this.serverService.getServerList().subscribe((response: Response) => {
+      if (response.data && response.data.servers) {
+        this.serverListGet = response.data.servers;
+      }
+    });
+  }
+
+  showSuccessMessage(message: string) {
+    this.successMessage = message;
+    setTimeout(() => {
+      this.successMessage = '';
+    }, 3000);
+  }
   //Ancienne version du filtre
   public oldfilterServer(): void {
     if (

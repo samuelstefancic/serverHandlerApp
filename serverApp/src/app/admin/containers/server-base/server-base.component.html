@@ -1,15 +1,41 @@
-<ul>
-  <li *ngFor="let server of serverList" [hidden]="server.hidden">
-    {{ server.name }} - {{ server.status }}
-  </li>
-</ul>
+<table>
+  <thead>
+    <tr>
+      <th>Icône</th>
+      <th>IP Address</th>
+      <th>Name</th>
+      <th>Status</th>
+      <th>Memory</th>
+      <th>Type</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr *ngFor="let server of serverList" [hidden]="server.hidden">
+      <td>
+        <img [src]="server.imageUrl" alt="Server Image" width="70" />
+      </td>
+      <td>{{ server.ipAdress }}</td>
+      <td>{{ server.name }}</td>
+      <td>{{ server.status }}</td>
+      <td>{{ server.memory }}</td>
+      <td>{{ server.type }}</td>
+      <td>
+        <button (click)="deleteServer(server.id)">Supprimer</button>
+        <button (click)="openUpdatePopup(server)">Mettre à jour</button>
+      </td>
+    </tr>
+  </tbody>
+</table>
 
 <button (click)="openPopup()">Ouvrir le pop-up</button>
-<app-popup
+<app-server-popup
   *ngIf="isPopupOpen"
+  [action]="'update'"
+  [server]="selectedServer"
   (addNewServer)="addNewServer($event)"
-  (onClose)="closePopup()"
-></app-popup>
+  (updateServer)="onUpdateServer($event)"
+  (onActionCompleted)="closeUpdatePopup()"
+></app-server-popup>
 
 <!--  <p>Le texte suivant montre l'intégralité des données envoyées par le backend</p>
 <div>{{ stateApp$ | async | json }}</div>-->

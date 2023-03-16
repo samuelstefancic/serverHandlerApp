@@ -1,0 +1,40 @@
+<div class="popup">
+  <h1 *ngIf="action === 'add'">Add a new server</h1>
+  <h1 *ngIf="action === 'update'">Update server</h1>
+  <h1 *ngIf="action === 'delete'">Delete server</h1>
+  <h1 *ngIf="action === 'reset'">Reset form</h1>
+  <form *ngIf="form" [formGroup]="form">
+    <input type="hidden" [value]="server?.id" formControlName="id" />
+    <label>
+      IP Address:
+      <input formControlName="ipAdress" type="text" />
+    </label>
+    <label>
+      Name:
+      <input formControlName="name" type="text" />
+    </label>
+    <label>
+      Memory:
+      <input formControlName="memory" type="text" />
+    </label>
+    <label>
+      Type:
+      <input formControlName="type" type="text" />
+    </label>
+    <label>
+      Status:
+      <select formControlName="status">
+        <option
+          *ngFor="let status of allowedStatus | keyvalue"
+          [value]="status.key"
+        >
+          {{ status.value }}
+        </option>
+      </select>
+    </label>
+  </form>
+  <button (click)="performAction()">
+    {{ action.charAt(0).toUpperCase() + action.slice(1) }}
+  </button>
+  <button (click)="onActionCompleted()">Close</button>
+</div>
