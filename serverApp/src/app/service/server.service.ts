@@ -178,7 +178,47 @@ export class ServerService {
     );
   }
 
-  //Sans méthode catchError, plus lourd
+  //this one is taking the server object
+
+  deleteServerObject(server: Server): Observable<Response> {
+    const url = `${this.apiUrl}/server/delete/${server.id}`;
+    return this.http.delete<Response>(url).pipe(
+      catchError((error) => {
+        console.error('Error updating the server with id ' + server.id, error);
+        return throwError(() => new Error(error));
+      })
+    );
+  }
+
+  //ping
+
+  pingNonUsed(ipAdress: string): Observable<Response> {
+    const url = `${this.apiUrl}/server/ping/${ipAdress}`;
+    return this.http.get<Response>(url).pipe(
+      catchError((error) => {
+        console.error(
+          'Error in ping the server with ipAdress ' + ipAdress,
+          error
+        );
+        return throwError(() => new Error(error));
+      })
+    );
+  }
+
+  private handleError(
+    errorMessage: string,
+    errorHttp: HttpErrorResponse
+  ): Observable<never> {
+    console.error(errorMessage, errorHttp);
+    const err =
+      errorHttp.error instanceof ErrorEvent
+        ? errorHttp.error.message
+        : `Error Code: ${errorHttp.status}\nMessage: ${errorHttp.message}`;
+    return throwError(() => new Error(err));
+  }
+}
+
+/*//Sans méthode catchError, plus lourd
   getServerListNonUsed(): Observable<Response> {
     const url = `${this.apiUrl}/server/list`;
     return this.http.get<Response>(url).pipe(
@@ -221,44 +261,4 @@ export class ServerService {
         return throwError(() => new Error(error));
       })
     );
-  }
-
-  //this one is taking the server object
-
-  deleteServerObject(server: Server): Observable<Response> {
-    const url = `${this.apiUrl}/server/delete/${server.id}`;
-    return this.http.delete<Response>(url).pipe(
-      catchError((error) => {
-        console.error('Error updating the server with id ' + server.id, error);
-        return throwError(() => new Error(error));
-      })
-    );
-  }
-
-  //ping
-
-  pingNonUsed(ipAdress: string): Observable<Response> {
-    const url = `${this.apiUrl}/server/ping/${ipAdress}`;
-    return this.http.get<Response>(url).pipe(
-      catchError((error) => {
-        console.error(
-          'Error in ping the server with ipAdress ' + ipAdress,
-          error
-        );
-        return throwError(() => new Error(error));
-      })
-    );
-  }
-
-  private handleError(
-    errorMessage: string,
-    errorHttp: HttpErrorResponse
-  ): Observable<never> {
-    console.error(errorMessage, errorHttp);
-    const err =
-      errorHttp.error instanceof ErrorEvent
-        ? errorHttp.error.message
-        : `Error Code: ${errorHttp.status}\nMessage: ${errorHttp.message}`;
-    return throwError(() => new Error(err));
-  }
-}
+  } */

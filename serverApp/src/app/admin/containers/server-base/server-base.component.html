@@ -16,7 +16,25 @@
       </td>
       <td>{{ server.ipAdress }}</td>
       <td>{{ server.name }}</td>
-      <td>{{ server.status }}</td>
+      <td>
+        <ng-container
+          *ngIf="server.status === Status.SERVER_DOWN; else GreenSvg"
+        >
+          <svg
+            viewBox="131.28 116.776 25.12 25.12"
+            width="25.12"
+            height="25.12"
+          >
+            <ellipse
+              style="fill: rgb(236, 0, 0); stroke: rgba(0, 0, 0, 0)"
+              cx="143.84"
+              cy="129.336"
+              rx="12.56"
+              ry="12.56"
+            ></ellipse>
+          </svg>
+        </ng-container>
+      </td>
       <td>{{ server.memory }}</td>
       <td>{{ server.type }}</td>
       <td>
@@ -27,7 +45,19 @@
   </tbody>
 </table>
 
-<button (click)="openPopup()">Ouvrir le pop-up</button>
+<!--  <p>Le texte suivant montre l'intégralité des données envoyées par le backend</p>
+<div>{{ stateApp$ | async | json }}</div>-->
+<ng-template #GreenSvg>
+  <svg viewBox="131.28 116.776 25.12 25.12" width="25.12" height="25.12">
+    <ellipse
+      style="stroke: rgba(255, 255, 255, 0); fill: rgb(0, 236, 75)"
+      cx="143.84"
+      cy="129.336"
+      rx="12.56"
+      ry="12.56"
+    ></ellipse>
+  </svg>
+</ng-template>
 <app-server-popup
   *ngIf="isPopupOpen"
   [action]="'update'"
@@ -36,7 +66,18 @@
   (updateServer)="onUpdateServer($event)"
   (onActionCompleted)="closeUpdatePopup()"
   (actionCompleted)="closeUpdatePopup()"
-></app-server-popup>
+  (refreshList)="refreshServerList()"
+>
+</app-server-popup>
 
-<!--  <p>Le texte suivant montre l'intégralité des données envoyées par le backend</p>
-<div>{{ stateApp$ | async | json }}</div>-->
+<!--<app-server-popup
+  *ngIf="isPopupOpen"
+  [action]="'update'"
+  [server]="selectedServer"
+  (addNewServer)="addNewServer($event)"
+  (updateServer)="onUpdateServer($event)"
+  (onActionCompleted)="closeUpdatePopup()"
+  (actionCompleted)="closeUpdatePopup()"
+  (refreshList)="refreshServerList()"
+  <button (click)="openPopup()">Ouvrir le pop-up</button>
+></app-server-popup>-->

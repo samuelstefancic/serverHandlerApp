@@ -44,6 +44,8 @@ export class ServerBaseComponent {
   serverListGet: Server[] = [];
   successMessage = '';
 
+  Status = Status;
+
   public selectedServer: Server | null = null;
 
   constructor(
@@ -55,6 +57,9 @@ export class ServerBaseComponent {
     this.serverService.getServerList().subscribe((response: any) => {
       this.serverList = response.data.servers;
       this.serverService.setServerList(this.serverList);
+    });
+    this.serverService.serverList$.subscribe((servers: Server[]) => {
+      this.serverList = servers;
     });
   }
 
