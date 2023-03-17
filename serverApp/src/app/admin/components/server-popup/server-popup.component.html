@@ -24,11 +24,8 @@
     <label>
       Status:
       <select formControlName="status">
-        <option
-          *ngFor="let status of allowedStatus | keyvalue"
-          [value]="status.key"
-        >
-          {{ status.value }}
+        <option *ngFor="let status of allowedStatus" [value]="status">
+          {{ status }}
         </option>
       </select>
     </label>

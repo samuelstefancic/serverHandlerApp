@@ -130,5 +130,6 @@ export class ServerPopupComponent implements AfterViewChecked {
 
   onActionCompleted() {
     this.actionCompleted.emit();
+    console.log('boutton pressé');
   }
 }
