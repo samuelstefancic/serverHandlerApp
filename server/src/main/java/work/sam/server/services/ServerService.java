@@ -158,6 +158,7 @@ public class ServerService {
             InetAddress addr = InetAddress.getByName(ipAdress);
             if (addr.isReachable(1000)) {
                 server.setStatus(Status.SERVER_UP);
+                serverRepository.save(server);
             } else {
                 server.setStatus(Status.SERVER_DOWN);
             }
@@ -176,7 +177,7 @@ public class ServerService {
         return server;
     }
     public Server pingId(Long id) {
-        logger.info("Ping vers ip du serveur : ", id);
+        logger.info("Ping vers id du serveur : ", id);
         Server server = serverRepository.findFirstById(id);
         if (server == null) {
             throw new ServerException("Server not found with ip : " + id, HttpStatus.BAD_REQUEST);

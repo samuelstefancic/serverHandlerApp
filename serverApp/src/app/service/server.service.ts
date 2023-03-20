@@ -5,6 +5,7 @@ import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import {
   BehaviorSubject,
   catchError,
+  map,
   Observable,
   Subscriber,
   tap,
@@ -45,16 +46,24 @@ export class ServerService {
   //Ping
   ping(ipAdress: string): Observable<Response> {
     const url = `${this.apiUrl}/server/ping/${ipAdress}`;
-    return this.http
-      .get<Response>(url)
-      .pipe(
-        catchError((error) =>
-          this.handleError(
-            'Error in ping the server with ipAdress ' + ipAdress,
-            error
-          )
+    return this.http.get<Response>(url).pipe(
+      catchError((error) =>
+        this.handleError(
+          'Error in ping the server with ipAdress ' + ipAdress,
+          error
         )
-      );
+      ),
+      map((response: Response) => {
+        const server: Server | undefined = response.data['server'];
+        if (server) {
+          server.status =
+            server.status === Status.SERVER_DOWN
+              ? Status.SERVER_UP
+              : server.status;
+        }
+        return response;
+      })
+    );
   }
 
   //getServerList

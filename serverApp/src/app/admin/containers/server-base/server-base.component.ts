@@ -54,6 +54,7 @@ export class ServerBaseComponent {
   ) {}
 
   ngOnInit(): void {
+    this.refreshServerList();
     this.serverService.getServerList().subscribe((response: any) => {
       this.serverList = response.data.servers;
       this.serverService.setServerList(this.serverList);
@@ -214,6 +215,31 @@ export class ServerBaseComponent {
     }
   }
 
+  pingServer(ipAdress: string): void {
+    this.serverService.ping(ipAdress).subscribe({
+      next: (response) => {
+        const server: Server | undefined = response.data['server'];
+        console.log('updated server', server);
+
+        if (server) {
+          const index = this.serverList.findIndex(
+            (s) => s.ipAdress === ipAdress
+          );
+          if (index !== -1) {
+            this.serverList[index].status = server.status;
+            this.serverService.setServerList(this.serverList);
+            console.log('list after update', this.serverList);
+          }
+        } else {
+          console.error('Server data is undefined');
+        }
+      },
+      error: (error) => {
+        console.error('Error pinging server:', error);
+      },
+    });
+  }
+
   private handleAppState(appState: AppState<Response>): void {
     if (typeof appState.error === 'string') {
       appState.appData = null;
@@ -226,6 +252,7 @@ export class ServerBaseComponent {
       if (response.data && response.data.servers) {
         this.serverListGet = response.data.servers;
       }
+      this.serverService.setServerList(this.serverList);
     });
   }
 

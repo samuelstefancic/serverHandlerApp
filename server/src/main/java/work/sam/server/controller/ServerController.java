@@ -89,6 +89,7 @@ public class ServerController {
         if (server.getStatus() == Status.SERVER_DOWN) {
             status = HttpStatus.SERVICE_UNAVAILABLE;
         }
+        serverService.save(server);
         return ResponseEntity.ok(
                 Response.builder()
                         .time(LocalDate.now())
@@ -98,6 +99,7 @@ public class ServerController {
                         .statusCode(status.value())
                         .build()
         );
+
     }
 
     //Retourner serveur seul
