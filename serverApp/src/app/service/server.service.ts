@@ -45,8 +45,8 @@ export class ServerService {
 
   //Ping
   ping(ipAdress: string): Observable<Response> {
-    const url = `${this.apiUrl}/server/ping/${ipAdress}`;
-    return this.http.get<Response>(url).pipe(
+    const url = `${this.apiUrl}/server/list/${ipAdress}`;
+    return this.http.put<Response>(url, null).pipe(
       catchError((error) =>
         this.handleError(
           'Error in ping the server with ipAdress ' + ipAdress,
